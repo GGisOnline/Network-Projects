@@ -6,9 +6,9 @@ import socket
 
 
 '''
--------------------------
-Function for the capture
--------------------------
+-------------------------------------
+Functions for the capture & conversion
+-------------------------------------
 
     Loading the file given as arg. DO NOT TOUCH
 '''
@@ -16,6 +16,55 @@ Function for the capture
 def CaptureLoader(packetpath):
     return pyshark.FileCapture(packetpath)
 
+#Helped with ChatGPT for this one
+def tls_version_to_str(hex_versions):
+    version_names = {
+        '0x0300': 'SSL 3.0',
+        '0x0301': 'TLS 1.0',
+        '0x0302': 'TLS 1.1',
+        '0x0303': 'TLS 1.2',
+        '0x0304': 'TLS 1.3',
+        'N/A': 'N/A',
+    }
+    
+    # Convertit chaque version hexadécimale en son nom correspondant, si disponible.
+    TLSVersionTranslated = [version_names.get(hex_versions)]
+    
+    return TLSVersionTranslated
+
+#Helped with ChatGPT for this one
+def tls_record_version_to_str(hex_versions):
+    version_names = {
+        '0x0300': 'SSL 3.0',
+        '0x0301': 'TLS 1.0',
+        '0x0302': 'TLS 1.1',
+        '0x0303': 'TLS 1.2',
+        '0x0304': 'TLS 1.3',
+        'N/A': 'N/A',
+    }
+    
+    # Convertit chaque version hexadécimale en son nom correspondant, si disponible.
+    RecordVersionTranslated = [version_names.get(hex_versions)]
+    
+    return RecordVersionTranslated
+
+#Helped with ChatGPT for this one
+def tls_handshake_type_to_str(hex_versions):
+    version_names = {
+        '1': 'ClientHello',
+        '2': 'ServerHello',
+        '11': 'Certificate',
+        '12': 'ServerKeyExchange',
+        '14': 'ServerHelloDone',
+        '16': 'ClientKeyExchange',
+        '20': 'Finished',
+        'N/A': 'N/A',
+    }
+    
+    # Convertit chaque version hexadécimale en son nom correspondant, si disponible.
+    HanshakeTypeTranslated = [version_names.get(hex_versions)]
+    
+    return HanshakeTypeTranslated
 
 
 
@@ -134,54 +183,98 @@ def CaptureNetLayerCustom(capture, sourceaddress):
 
 
 
-'''
-TODO : SOLVE BUGS
-'''
 
-def CaptureTLS(capture):
+def CaptureTLSVersion(capture):
+    Results={}
     for packet in capture:
+
+        TLSHandshakeVersion="N/A"
+        TLSRecordVersion="N/A"
+        TLSHandshakeType="N/A"
+
         if 'IP' in packet:
             SourceAddress = packet.ip.src
+            DestinationAddress = packet.ip.dst
         elif 'IPv6' in packet:
             SourceAddress = packet.ipv6.src
+            DestinationAddress = packet.ipv6.dst
         else:
             continue
-                
+
         if 'TLS' in packet:
             if hasattr(packet.tls, 'handshake_version'):
-                tls_handshake_version = packet.tls.handshake_version
-                print(f"Packet {packet.number}: TLS Handshake Version {tls_handshake_version}")
+                TLSHandshakeVersion = packet.tls.handshake_version
+            if hasattr(packet.tls, 'record_version'):
+                TLSRecordVersion = packet.tls.record_version
+            if hasattr(packet.tls, 'handshake_type'):
+                TLSHandshakeType = packet.tls.handshake_type
 
-                if hasattr(packet.tls, 'handshake_type'):
-                    handshake_type = packet.tls.handshake_type
-                    print(f"Handshake Type: {handshake_type}")
+            TLSVersionTranslated=tls_version_to_str(TLSHandshakeVersion)
+            TLSRecordVersionTranslated=tls_record_version_to_str(TLSRecordVersion)
+            TLSHandshakeTypeTranslated=tls_handshake_type_to_str(TLSHandshakeType)
+
+            TLSResults = {
+            'handshake_version': TLSVersionTranslated,
+            'record_version': TLSRecordVersionTranslated,
+            'handshake_type': TLSHandshakeTypeTranslated
+            }
+
+            flow = (SourceAddress, DestinationAddress)
                 
+            if flow not in Results:
+                Results[flow] = [TLSResults]
             else:
-                tls_record_version = packet.tls.record_version
-                print(f"Packet {packet.number}: TLS Record Version (fallback) {tls_record_version}")        
+                if TLSResults not in Results[flow]:
+                        Results[flow].append(TLSResults)
 
-def CaptureTLSCustom(capture, sourceaddress):
+    return Results
+
+def CaptureTLSVersionCustom(capture, sourceaddress):
+    Results={}
     for packet in capture:
+
+        TLSHandshakeVersion="N/A"
+        TLSRecordVersion="N/A"
+        TLSHandshakeType="N/A"
+
         if 'IP' in packet:
             SourceAddress = packet.ip.src
+            DestinationAddress = packet.ip.dst
         elif 'IPv6' in packet:
             SourceAddress = packet.ipv6.src
+            DestinationAddress = packet.ipv6.dst
         else:
             continue
 
         if SourceAddress == sourceaddress:
             if 'TLS' in packet:
                 if hasattr(packet.tls, 'handshake_version'):
-                    tls_handshake_version = packet.tls.handshake_version
-                    print(f"Packet {packet.number}: TLS Handshake Version {tls_handshake_version}")
+                    TLSHandshakeVersion = packet.tls.handshake_version
+                if hasattr(packet.tls, 'record_version'):
+                    TLSRecordVersion = packet.tls.record_version
+                if hasattr(packet.tls, 'handshake_type'):
+                    TLSHandshakeType = packet.tls.handshake_type
 
-                    if hasattr(packet.tls, 'handshake_type'):
-                        handshake_type = packet.tls.handshake_type
-                        print(f"Handshake Type: {handshake_type}")
+                TLSVersionTranslated=tls_version_to_str(TLSHandshakeVersion)
+                TLSRecordVersionTranslated=tls_record_version_to_str(TLSRecordVersion)
+                TLSHandshakeTypeTranslated=tls_handshake_type_to_str(TLSHandshakeType)
+
+                TLSResults = {
+                'handshake_version': TLSVersionTranslated,
+                'record_version': TLSRecordVersionTranslated,
+                'handshake_type': TLSHandshakeTypeTranslated
+                }
+
+                flow = (SourceAddress, DestinationAddress)
                     
+                if flow not in Results:
+                    Results[flow] = [TLSResults]
                 else:
-                    tls_record_version = packet.tls.record_version
-                    print(f"Packet {packet.number}: TLS Record Version (fallback) {tls_record_version}")
+                    if TLSResults not in Results[flow]:
+                            Results[flow].append(TLSResults)
+
+    return Results
+                
 
 
 
@@ -338,12 +431,13 @@ def main():
             gotaddress=False
 
         if(gotaddress):
-            TLSResults=CaptureTLSCustom(MyCapture, SourceAddress)
+            TLSResults=CaptureTLSVersionCustom(MyCapture, SourceAddress)
         else:
-            TLSResults=CaptureTLS(MyCapture)
+            TLSResults=CaptureTLSVersion(MyCapture)
 
         print("Here are the TLS results: ")
-        print(TLSResults)
+        for flow, version in TLSResults.items():
+            print(f"{flow}: {version} \n")
    
     
     if MyArguments.custom:
@@ -364,7 +458,7 @@ def main():
                     gotaddress=True
                 except OSError:
                     print("The address entered is not valid. Please try again.")
-                    
+
         else:
             gotaddress=False
 
