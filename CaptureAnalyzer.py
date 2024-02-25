@@ -465,27 +465,34 @@ Parser Zone
 
 '''
 
+DEBUG_MODE = False
+
 def main():
+
+    global DEBUG_MODE
+
     MyParser = argparse.ArgumentParser(description="Packet Analyzer")
     
     MyParser.add_argument("packet_path", type=str, help="Path of the packet you would like to analyze")
     MyParser.add_argument("--dns", action="store_true", help="Analyzing DNS requests only")
     MyParser.add_argument("--netlayer", action="store_true", help="Analyzing the network layer")
     MyParser.add_argument("--tls", action="store_true", help="Analyze TLS version/handshake on given packets")
+    MyParser.add_argument("-D", "--debug", action="store_true", help="Enable debug mode")
 
 
     MyArguments = MyParser.parse_args()
+    DEBUG_MODE = MyArguments.debug
 
     MyCapture = CaptureLoader(MyArguments.packet_path)
 
-    #DEBUG MODE
-    #print(MyCapture)
+    if DEBUG_MODE:
+        print(MyCapture)
 
     
     if MyArguments.dns:
 
-        #DEBUG MODE
-        #print(CaptureDNS(MyCapture))
+        if DEBUG_MODE:
+            print(CaptureDNS(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         if SourceAddress == "Yes" or SourceAddress == "yes" or SourceAddress == "Y" or SourceAddress == "y":
@@ -513,12 +520,12 @@ def main():
         for query, response in DNSResults.items():
             print(f"{query} -> {response}")
 
-    
+
     
     if MyArguments.netlayer:
 
-        #DEBUG MODE
-        #print(CaptureNetLayer(MyCapture))
+        if DEBUG_MODE:
+            print(CaptureNetLayer(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
@@ -552,8 +559,8 @@ def main():
 
     if MyArguments.tls:
         
-        #DEBUG MODE
-        #print(CaptureNetLayer(MyCapture))
+        if DEBUG_MODE:
+            print(CaptureNetLayer(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
@@ -584,7 +591,6 @@ def main():
         else:
             print("No results found.")
     
-
     else:
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
@@ -614,8 +620,6 @@ def main():
                 print(f"{flow}: {states} \n")
         else:
             print("No results found.")
-
-
 
 
 if __name__ == "__main__":
