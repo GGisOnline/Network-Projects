@@ -70,6 +70,12 @@ def tls_handshake_type_to_str(hex_versions):
     
     return HanshakeTypeTranslated
 
+def generateResults(results, type, nameCapture):
+    with open("Results/{}_{}.txt".format(type, nameCapture), "w") as file:
+        for query, response in results.items():
+            file.write(f"{query} -> {response}\n")
+    print("Results have been saved in Results/{}_{}.txt".format(type, nameCapture))
+
 
 
 '''
@@ -79,13 +85,12 @@ DNS
 ---
 
 - CaptureDNS(capture) -> Capture all packets in pcap/pcapng file given and analyze DNS.
-- CaptureDNSCustom(capture, sourceaddress) -> Capture all packets having the source ip address given in pcap/pcapng file given and analyze DNS.
 
 Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 '''
-def CaptureDNS(capture):
+def CaptureDNS(capture, sourceaddress):
     dns_queries =  {}
     for packet in capture:
         if 'IP' in packet:
@@ -97,31 +102,7 @@ def CaptureDNS(capture):
         else:
             continue
 
-        if packet.highest_layer == 'DNS' and hasattr(packet.dns, 'qry_name'):
-            query_name = packet.dns.qry_name
-
-            if hasattr(packet.dns, 'a'):
-                response_address = packet.dns.a
-            else:
-                response_address = 'N/A'
-            
-            dns_queries[query_name] = response_address
-    
-    return dns_queries
-
-def CaptureDNSCustom(capture, sourceaddress):
-    dns_queries =  {}
-    for packet in capture:
-        if 'IP' in packet:
-            SourceAddress=packet.ip.src
-            DestinationAddress=packet.ip.dst
-        elif 'IPv6' in packet:
-            SourceAddress = packet.ipv6.src
-            DestinationAddress = packet.ipv6.dst
-        else:
-            continue
-
-        if SourceAddress==sourceaddress:
+        if not sourceaddress or SourceAddress==sourceaddress:
             if packet.highest_layer == 'DNS' and hasattr(packet.dns, 'qry_name'):
                 query_name = packet.dns.qry_name
 
@@ -136,6 +117,7 @@ def CaptureDNSCustom(capture, sourceaddress):
 
 
 
+
 '''
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -143,12 +125,11 @@ NET Layer
 ---------
 
 - CaptureNetayer(capture) -> 
-- CaptureNetLayerCustom(capture, sourceaddress) -> 
 
 Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 '''
-def CaptureNetLayer(capture):
+def CaptureNetLayer(capture, sourceaddress):
     ip_addresses={}
     for packet in capture:
         if 'IP' in packet:
@@ -160,36 +141,14 @@ def CaptureNetLayer(capture):
         else:
             continue
 
-        flow = (SourceAddress, DestinationAddress)
 
-        if flow not in ip_addresses:
-            ip_addresses[flow]=0
-        
-        ip_addresses[flow]+=1
-
-    return ip_addresses
-
-def CaptureNetLayerCustom(capture, sourceaddress):
-    ip_addresses={}
-    for packet in capture:
-        if 'IP' in packet:
-            SourceAddress=packet.ip.src
-            DestinationAddress=packet.ip.dst
-        elif 'IPv6' in packet:
-            SourceAddress = packet.ipv6.src
-            DestinationAddress = packet.ipv6.dst
-        else:
-            continue
-
-        if SourceAddress==sourceaddress:
+        if not sourceaddress or SourceAddress==sourceaddress:
             flow = (SourceAddress, DestinationAddress)
 
             if flow not in ip_addresses:
                 ip_addresses[flow]=0
             
             ip_addresses[flow]+=1
-        else:
-            continue
 
     return ip_addresses
 
@@ -203,12 +162,11 @@ TLS Version
 -----------
 
 - CaptureNetayer(capture) -> 
-- CaptureNetLayerCustom(capture, sourceaddress) -> 
 
 Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 '''
-def CaptureTLSVersion(capture):
+def CaptureTLSVersion(capture, sourceaddress):
     Results={}
     for packet in capture:
 
@@ -225,52 +183,8 @@ def CaptureTLSVersion(capture):
         else:
             continue
 
-        if 'TLS' in packet:
-            if hasattr(packet.tls, 'handshake_version'):
-                TLSHandshakeVersion = packet.tls.handshake_version
-            if hasattr(packet.tls, 'record_version'):
-                TLSRecordVersion = packet.tls.record_version
-            if hasattr(packet.tls, 'handshake_type'):
-                TLSHandshakeType = packet.tls.handshake_type
 
-            TLSVersionTranslated=tls_version_to_str(TLSHandshakeVersion)
-            TLSRecordVersionTranslated=tls_record_version_to_str(TLSRecordVersion)
-            TLSHandshakeTypeTranslated=tls_handshake_type_to_str(TLSHandshakeType)
-
-            TLSResults = {
-            'handshake_version': TLSVersionTranslated,
-            'record_version': TLSRecordVersionTranslated,
-            'handshake_type': TLSHandshakeTypeTranslated
-            }
-
-            flow = (SourceAddress, DestinationAddress)
-                
-            if flow not in Results:
-                Results[flow] = [TLSResults]
-            else:
-                if TLSResults not in Results[flow]:
-                        Results[flow].append(TLSResults)
-
-    return Results
-
-def CaptureTLSVersionCustom(capture, sourceaddress):
-    Results={}
-    for packet in capture:
-
-        TLSHandshakeVersion="N/A"
-        TLSRecordVersion="N/A"
-        TLSHandshakeType="N/A"
-
-        if 'IP' in packet:
-            SourceAddress = packet.ip.src
-            DestinationAddress = packet.ip.dst
-        elif 'IPv6' in packet:
-            SourceAddress = packet.ipv6.src
-            DestinationAddress = packet.ipv6.dst
-        else:
-            continue
-
-        if SourceAddress == sourceaddress:
+        if not sourceaddress or SourceAddress==sourceaddress:
             if 'TLS' in packet:
                 if hasattr(packet.tls, 'handshake_version'):
                     TLSHandshakeVersion = packet.tls.handshake_version
@@ -315,7 +229,7 @@ Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 '''
 
-def Capture(capture):
+def Capture(capture, sourceaddress):
 
     Results={}
 
@@ -334,75 +248,8 @@ def Capture(capture):
         else:
             continue
 
-        flow = (SourceAddress, DestinationAddress)
 
-        if flow not in Results:
-            Results[flow]={
-            'Counter': 0,
-            'DNS Results': [],
-            'TLS Results': [],
-        }
-
-        Results[flow]['Counter'] += 1
-
-        if packet.highest_layer == 'DNS' and hasattr(packet.dns, 'qry_name'):
-                query_name = packet.dns.qry_name
-
-                if hasattr(packet.dns, 'a'):
-                    response_address = packet.dns.a
-                else:
-                    response_address = 'N/A'
-
-                DNSResults = {
-                    'query_name': query_name,
-                    'response_address': response_address,
-                }
-                
-                Results[flow]['DNS Results'].append(DNSResults)
-
-        if 'TLS' in packet:
-            if hasattr(packet.tls, 'handshake_version'):
-                TLSHandshakeVersion = packet.tls.handshake_version
-            if hasattr(packet.tls, 'record_version'):
-                TLSRecordVersion = packet.tls.record_version
-            if hasattr(packet.tls, 'handshake_type'):
-                TLSHandshakeType = packet.tls.handshake_type
-
-            TLSVersionTranslated=tls_version_to_str(TLSHandshakeVersion)
-            TLSRecordVersionTranslated=tls_record_version_to_str(TLSRecordVersion)
-            TLSHandshakeTypeTranslated=tls_handshake_type_to_str(TLSHandshakeType)
-
-            TLSResults = {
-            'handshake_version': TLSVersionTranslated,
-            'record_version': TLSRecordVersionTranslated,
-            'handshake_type': TLSHandshakeTypeTranslated
-            }
-          
-            Results[flow]['TLS Results'].append(TLSResults)
-
-    return Results
-
-
-def CaptureCustom(capture, sourceaddress):
-
-    Results={}
-
-    for packet in capture:
-        
-        TLSHandshakeVersion="N/A"
-        TLSRecordVersion="N/A"
-        TLSHandshakeType="N/A"
-
-        if 'IP' in packet:
-            SourceAddress = packet.ip.src
-            DestinationAddress = packet.ip.dst
-        elif 'IPv6' in packet:
-            SourceAddress = packet.ipv6.src
-            DestinationAddress = packet.ipv6.dst
-        else:
-            continue
-
-        if SourceAddress == sourceaddress:
+        if not sourceaddress or SourceAddress==sourceaddress:
             flow = (SourceAddress, DestinationAddress)
 
             if flow not in Results:
@@ -463,13 +310,6 @@ Parser Zone
 
 '''
 
-def generateResults(results, type, nameCapture):
-    with open("Results/{}_{}.txt".format(type, nameCapture), "w") as file:
-        for query, response in results.items():
-            file.write(f"{query} -> {response}\n")
-    print("Results have been saved in Results/{}_{}.txt".format(type, nameCapture))
-
-
 DEBUG_MODE = False
 
 def main():
@@ -482,6 +322,7 @@ def main():
     MyParser.add_argument("--dns", action="store_true", help="Analyzing DNS requests only")
     MyParser.add_argument("--netlayer", action="store_true", help="Analyzing the network layer")
     MyParser.add_argument("--tls", action="store_true", help="Analyze TLS version/handshake on given packets")
+    MyParser.add_argument("-G", "--glob", action="store_true", help="Global analyze of file given")
     MyParser.add_argument("-D", "--debug", action="store_true", help="Enable debug mode")
 
     MyArguments = MyParser.parse_args()
@@ -494,7 +335,6 @@ def main():
         print(MyCapture)
 
     if MyArguments.dns:
-
         if DEBUG_MODE:
             print(CaptureDNS(MyCapture))
 
@@ -506,18 +346,16 @@ def main():
 
             try:
                 socket.inet_aton(SourceAddress)
-                gotaddress=True
             except OSError:
                 try:
                     socket.inet_pton(socket.AF_INET6, SourceAddress)
-                    gotaddress=True
                 except OSError:
                     print("The address entered is not valid. Please try again.")
-
-        if (gotaddress):
-            DNSResults = CaptureDNSCustom(MyCapture, SourceAddress)
+        
         else:
-            DNSResults = CaptureDNS(MyCapture)
+            SourceAddress = None
+
+        DNSResults = CaptureDNS(MyCapture, SourceAddress)
 
         if (DNSResults):
             generateResults(DNSResults, "DNS", nameCapture)
@@ -538,18 +376,17 @@ def main():
             
             try:
                 socket.inet_aton(SourceAddress)
-                gotaddress=True
             except OSError:
                 try:
                     socket.inet_pton(socket.AF_INET6, SourceAddress)
-                    gotaddress=True
                 except OSError:
                     print("The address entered is not valid. Please try again.")
-
-        if (gotaddress):
-            NLResults = CaptureNetLayerCustom(MyCapture, SourceAddress)
+        
         else:
-            NLResults = CaptureNetLayer(MyCapture)
+            SourceAddress = None
+
+        
+        NLResults = CaptureNetLayer(MyCapture, SourceAddress)
 
         if (NLResults):
             generateResults(NLResults, "NL", nameCapture)
@@ -563,32 +400,32 @@ def main():
             print(CaptureNetLayer(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        gotaddress=False
 
         if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
             
             try:
                 socket.inet_aton(SourceAddress)
-                gotaddress=True
             except OSError:
                 try:
                     socket.inet_pton(socket.AF_INET6, SourceAddress)
-                    gotaddress=True
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        if (gotaddress):
-            TLSResults=CaptureTLSVersionCustom(MyCapture, SourceAddress)
         else:
-            TLSResults=CaptureTLSVersion(MyCapture)
+            SourceAddress = None
+
+
+        
+        TLSResults=CaptureTLSVersion(MyCapture, SourceAddress)
 
         if (TLSResults):
             generateResults(TLSResults, "TLS", nameCapture)
         else:
             print("No results found.")
     
-    else:
+
+    if MyArguments.glob:
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         gotaddress=False
 
@@ -597,18 +434,17 @@ def main():
             
             try:
                 socket.inet_aton(SourceAddress)
-                gotaddress=True
             except OSError:
                 try:
                     socket.inet_pton(socket.AF_INET6, SourceAddress)
-                    gotaddress=True
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        if (gotaddress):
-            GlobalResults=CaptureCustom(MyCapture, SourceAddress)
         else:
-            GlobalResults=Capture(MyCapture)
+            SourceAddress = None
+
+
+        GlobalResults=Capture(MyCapture, SourceAddress)
 
         if (GlobalResults):
             generateResults(GlobalResults, "Global", nameCapture)
