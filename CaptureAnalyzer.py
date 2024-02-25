@@ -1,9 +1,7 @@
-
 import argparse
 import pyshark
 import socket
-
-
+import os
 
 '''
 ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -465,6 +463,13 @@ Parser Zone
 
 '''
 
+def generateResults(results, type, nameCapture):
+    with open("Results/{}_{}.txt".format(type, nameCapture), "w") as file:
+        for query, response in results.items():
+            file.write(f"{query} -> {response}\n")
+    print("Results have been saved in Results/{}_{}.txt".format(type, nameCapture))
+
+
 DEBUG_MODE = False
 
 def main():
@@ -479,23 +484,24 @@ def main():
     MyParser.add_argument("--tls", action="store_true", help="Analyze TLS version/handshake on given packets")
     MyParser.add_argument("-D", "--debug", action="store_true", help="Enable debug mode")
 
-
     MyArguments = MyParser.parse_args()
     DEBUG_MODE = MyArguments.debug
 
+    nameCapture = os.path.splitext(os.path.basename(MyArguments.packet_path))[0]
     MyCapture = CaptureLoader(MyArguments.packet_path)
 
     if DEBUG_MODE:
         print(MyCapture)
 
-    
     if MyArguments.dns:
 
         if DEBUG_MODE:
             print(CaptureDNS(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        if SourceAddress == "Yes" or SourceAddress == "yes" or SourceAddress == "Y" or SourceAddress == "y":
+        gotaddress=False
+
+        if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
 
             try:
@@ -508,18 +514,15 @@ def main():
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        else:
-            gotaddress=False
-
-        if(gotaddress):
+        if (gotaddress):
             DNSResults = CaptureDNSCustom(MyCapture, SourceAddress)
         else:
             DNSResults = CaptureDNS(MyCapture)
 
-        print('Here are the DNS results: ')
-        for query, response in DNSResults.items():
-            print(f"{query} -> {response}")
-
+        if (DNSResults):
+            generateResults(DNSResults, "DNS", nameCapture)
+        else:
+            print("No results found.")
 
     
     if MyArguments.netlayer:
@@ -528,7 +531,9 @@ def main():
             print(CaptureNetLayer(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
+        gotaddress=False
+
+        if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
             
             try:
@@ -541,18 +546,13 @@ def main():
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        else:
-            gotaddress=False
-
-        if(gotaddress):
+        if (gotaddress):
             NLResults = CaptureNetLayerCustom(MyCapture, SourceAddress)
         else:
             NLResults = CaptureNetLayer(MyCapture)
 
-        if(NLResults):
-            print("Here are the results of the network layer: ")
-            for flow, count in NLResults.items():
-                print(f"{flow}: {count} paquets")
+        if (NLResults):
+            generateResults(NLResults, "NL", nameCapture)
         else:
             print("No results found.")
 
@@ -563,7 +563,9 @@ def main():
             print(CaptureNetLayer(MyCapture))
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
+        gotaddress=False
+
+        if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
             
             try:
@@ -576,24 +578,21 @@ def main():
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        else:
-            gotaddress=False
-
-        if(gotaddress):
+        if (gotaddress):
             TLSResults=CaptureTLSVersionCustom(MyCapture, SourceAddress)
         else:
             TLSResults=CaptureTLSVersion(MyCapture)
 
-        if(TLSResults):
-            print("Here are the TLS results: ")
-            for flow, version in TLSResults.items():
-                print(f"{flow}: {version} \n")
+        if (TLSResults):
+            generateResults(TLSResults, "TLS", nameCapture)
         else:
             print("No results found.")
     
     else:
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        if SourceAddress == "Yes" or SourceAddress == "y" or SourceAddress == "yes" or SourceAddress == "Y":
+        gotaddress=False
+
+        if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
             
             try:
@@ -606,18 +605,13 @@ def main():
                 except OSError:
                     print("The address entered is not valid. Please try again.")
 
-        else:
-            gotaddress=False
-
-        if(gotaddress):
+        if (gotaddress):
             GlobalResults=CaptureCustom(MyCapture, SourceAddress)
         else:
             GlobalResults=Capture(MyCapture)
 
-        if(GlobalResults):
-            print("Here are the TLS results: ")
-            for flow, states in GlobalResults.items():
-                print(f"{flow}: {states} \n")
+        if (GlobalResults):
+            generateResults(GlobalResults, "Global", nameCapture)
         else:
             print("No results found.")
 
