@@ -124,7 +124,7 @@ def CaptureDNS(capture, sourceaddress):
 NET Layer
 ---------
 
-- CaptureNetayer(capture) -> 
+- CaptureNetLayer(capture) -> Counting number of packets for each different source IP address.
 
 Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -161,7 +161,7 @@ def CaptureNetLayer(capture, sourceaddress):
 TLS Version
 -----------
 
-- CaptureNetayer(capture) -> 
+- CaptureTLSVersion(capture) -> Getting information for each TLS Packets in the file given.
 
 Feel free to edit it if needed.
 ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -322,7 +322,7 @@ def main():
     MyParser.add_argument("--dns", action="store_true", help="Analyzing DNS requests only")
     MyParser.add_argument("--netlayer", action="store_true", help="Analyzing the network layer")
     MyParser.add_argument("--tls", action="store_true", help="Analyze TLS version/handshake on given packets")
-    MyParser.add_argument("-G", "--glob", action="store_true", help="Global analyze of file given")
+    MyParser.add_argument("--glob", action="store_true", help="Global analyze of file given")
     MyParser.add_argument("-D", "--debug", action="store_true", help="Enable debug mode")
 
     MyArguments = MyParser.parse_args()
@@ -335,8 +335,11 @@ def main():
         print(MyCapture)
 
     if MyArguments.dns:
+        
+        '''
         if DEBUG_MODE:
             print(CaptureDNS(MyCapture))
+        '''
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         gotaddress=False
@@ -365,8 +368,10 @@ def main():
     
     if MyArguments.netlayer:
 
+        '''
         if DEBUG_MODE:
             print(CaptureNetLayer(MyCapture))
+        '''
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
         gotaddress=False
@@ -396,8 +401,10 @@ def main():
 
     if MyArguments.tls:
         
+        '''
         if DEBUG_MODE:
-            print(CaptureNetLayer(MyCapture))
+            print(CaptureTLSVersion(MyCapture))
+        '''
 
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
 
@@ -426,8 +433,13 @@ def main():
     
 
     if MyArguments.glob:
+
+        '''
+        if DEBUG_MODE:
+            print(Capture(MyCapture))
+        '''
+        
         SourceAddress = input("Do you need a specific source address ? Yes/No: ")
-        gotaddress=False
 
         if SourceAddress in ["Yes", "yes", "Y", "y"]:
             SourceAddress = input("Please enter the source address you want to be recorded: ")
