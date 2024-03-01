@@ -1,7 +1,7 @@
 # LSINF1252 : Systèmes Informatiques
 Ce répository contient tous les travaux de l'année académique 2023-2024 dans le cadre du cours de Réseaux Informatiques (LINFO1341) de BAC 3 (Bachelier 3) à l'Université Catholique de Louvain-La-Neuve (EPL).
 
-Avec l'aide de DELSART Mathis (31302100).
+Avec l'aide de DELSART Mathis.
 
 ## Avertissement concernant le plagiat de "Network-Projects"
 Je tiens à rappeler à tous les visiteurs de ce repository que "CS-Projects" est une collection de mes travaux personnels dans le domaine du Réseaux Informatiques. Ces projets ont été développés avec diligence et engagement, représentant des heures de recherche, de programmation, et d'analyse. Ils sont importants pour ma carrière académique et sont cotés dans le cadre de mon cursus à l'université.
@@ -26,7 +26,7 @@ Signé, LECHAT Jérôme
 # LSINF1252 : Computer Systems
 This repository contains all the work from the academic year 2023-2024 for the Network course (LINFO1341) in the 3rd year of the Bachelor's degree at the Université Catholique de Louvain-La-Neuve (EPL).
 
-With the help of DELSART Mathis (31302100).
+With the help of DELSART Mathis.
 
 ## Plagiarism Warning for "Network-Projects"
 I wish to remind all visitors of this repository that "Network-Projects" is a collection of my personal work in the field of Computer Network. These projects have been developed with diligence and commitment, representing countless hours of research, programming, and analysis. They hold significant value in my academic career and are graded as part of my university curriculum.
