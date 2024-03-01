@@ -1,7 +1,7 @@
 # LINFO1341-Project1
 
 ## Introduction
-Here is the first project of the LINFO1341 course : Analyse d’applications réseaux (OneDrive) made by **LECHAT Jérôme [50351800]** & 
+Here is the first project of the LINFO1341 course : Analyse d’applications réseaux (OneDrive) made by **LECHAT Jérôme [50351800]** & **DELSART Mathis [31302100]**.
 
 Our captures are made with different OS (MacOS, Windows 10, Windows 11, Linux) and under different circumstances (Wifi, Ethernet)
 
