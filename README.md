@@ -1,4 +1,4 @@
-# LSINF1252 : Systèmes Informatiques
+# LINFO1341 : Computer Networks
 Ce répository contient tous les travaux de l'année académique 2023-2024 dans le cadre du cours de Réseaux Informatiques (LINFO1341) de BAC 3 (Bachelier 3) à l'Université Catholique de Louvain-La-Neuve (EPL).
 
 Avec l'aide de DELSART Mathis (pour le projet 1).
@@ -23,7 +23,7 @@ Signé, LECHAT Jérôme
 
 
 
-# LSINF1252 : Computer Systems
+# LINFO1341 : Computer Networks
 This repository contains all the work from the academic year 2023-2024 for the Network course (LINFO1341) in the 3rd year of the Bachelor's degree at the Université Catholique de Louvain-La-Neuve (EPL).
 
 With the help of DELSART Mathis (for the first project).
