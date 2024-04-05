@@ -2,6 +2,14 @@ import pyshark
 from datetime import datetime, timedelta
 from collections import defaultdict
 
+
+'''
+---------------------------------------------------------------------------------------------------------------------------------------------------
+!!! HELPED WITH CHATGPT FOR THIS PART !!!
+---------------------------------------------------------------------------------------------------------------------------------------------------
+'''
+
+
 #Chemin vers le fichier pcapng
 pcapng_file = '/Users/gg/Documents/Network-Projects/Projet 1/Mathis/Captures/ImportFolder.pcapng'
 
@@ -38,15 +46,13 @@ def calculate_data_volume(file_path):
             last_minute = capture_time
             total_bytes = int(pkt.length)
 
-    #Fermeture de la capture
     capture.close()
-
     return data_volume
 
-# Appel de la fonction pour calculer le volume de données par minute
+#Appel de la fonction pour calculer le volume de données par minute
 data_volume = calculate_data_volume(pcapng_file)
 
-# Calcul du nombre total de minutes
+#Calcul du nombre total de minutes
 total_minutes = len(data_volume)
 
 average_volume_per_minute = sum(data_volume.values()) / total_minutes / 1000000
