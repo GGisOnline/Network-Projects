@@ -1,0 +1,8 @@
+me.apple-dns.net -> 17.248.236.131
+skydrive.wns.windows.com -> N/A
+wns.notify.trafficmanager.net -> N/A
+133.152.90.20.in-addr.arpa -> N/A
+b._dns-sd._udp.0.1.168.192.in-addr.arpa -> N/A
+db._dns-sd._udp.0.1.168.192.in-addr.arpa -> N/A
+b._dns-sd._udp.home -> N/A
+db._dns-sd._udp.home -> N/A
