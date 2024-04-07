@@ -122,7 +122,7 @@ Different options are available :
 - <ins>DNS plot:</ins> This option will simply give a result and plot all DNS requests by time.
 
 ``` python3
-foo@bar:~$ python3 CaptureAnalyzer.py {your .pcap/.pcapng file} --dns
+foo@bar:~$ python3 CapturePlot.py {your .pcap/.pcapng file} --dns
 ```
 
 - <ins>IPv4 and IPv6 plot:</ins> This option will simply give a result and plot all proportion of IPv4 and IPv6 packets found in the file given.
